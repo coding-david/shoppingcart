@@ -7,16 +7,21 @@ function CartBody() {
   const CART_URL = `http://localhost:8082/api/items`;
 
   const [products, setProducts] = useState([]);
+  const [productsIsLoading, setProductsIsLoading] = useState(true);
   const [cartList, setCartList] = useState([]);
+  const [cartListIsLoading, setCartListIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
   useEffect(() => {
-    fetchFunction(PRODUCT_URL, setProducts);
-    fetchFunction(CART_URL, setCartList);
-  }, [PRODUCT_URL, CART_URL]);
+    setTimeout(() =>{
+      fetchFunction(PRODUCT_URL, setProducts,setProductsIsLoading);
+      fetchFunction(CART_URL, setCartList,setCartListIsLoading);
+    },2000)
+  }, []);
 
-  const fetchFunction = async (url, setFunc) => {
+  const fetchFunction = async (url, setFunc,setLoad) => {
     try {
+      setLoad(true)
       const response = await fetch(url);
       if (!response.ok) throw Error("Did not received expected data");
       const listProducts = await response.json();
@@ -24,21 +29,34 @@ function CartBody() {
       setFetchError(null);
     } catch (err) {
       setFetchError(err.message);
+    }finally{
+      setLoad(false);
     }
   };
 
-  const totalPrice = () => {
-    let totalPrice = cartList.map( item => products.find(p => p.id === item.product_id).priceInCents * item.quantity);
-    return totalPrice.reduce((acc, prev) => acc + prev)/100;
+const createItem = async (item) => {
+    const response = await fetch(CART_URL, {
+      method: 'POST',
+      body: JSON.stringify(item),
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    })
+    const cartItem = await response.json()
+    setCartList(prevState => [...prevState,cartItem])
   }
+
+  const setPrice = () => cartList.map( item => products.find(p => p.id === item.product_id).priceInCents * item.quantity).reduce((acc, prev) => acc + prev,0)/100;
 
 
   return (
     <div>
       <h2>AWESOME PRODUCTS!</h2>
-      {!fetchError && <CartTable cartList={cartList} products={products} />}
-      {!fetchError && <h4>Total Price: ${totalPrice()}</h4>}
-      {!fetchError && <AddItem products={products} />}
+      {(productsIsLoading || cartListIsLoading) && <h4>is loading...</h4>}
+      {!productsIsLoading && !cartListIsLoading && <CartTable cartList={cartList} products={products} />}
+      {!productsIsLoading && !cartListIsLoading && <h4>Total Price: ${setPrice()}</h4>}
+      {!productsIsLoading && !cartListIsLoading && <AddItem products={products} nextID={cartList.length + 1} createItem={createItem} />}
     </div>
   );
 }

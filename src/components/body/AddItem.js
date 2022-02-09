@@ -1,12 +1,11 @@
 import React,{useState} from 'react';
 
-const AddItem = ({products}) =>{
+const AddItem = ({products,nextID,createItem}) =>{
 
   const [item,setItem] = useState({});
 
   const onChangeSetItem = e => {
     e.preventDefault();
-    console.log(`${e.target.name}:${e.target.value}`);
     setItem(prevItem => ({...prevItem,[e.target.name]:e.target.value}));
 }
 
@@ -16,6 +15,23 @@ const createComboBoxItem = (pro) => (
   </option>
 );
 
+// {
+//   "product_id": 1,
+//   "quantity": 1,
+//   "id": 1
+// }
+
+
+
+const addNewCartItem = (e) => {
+  e.preventDefault();
+  let product_id = products.find(product => product.name === item.product).id;
+  let quantity = item.quantity;
+  let id = nextID;
+  let newItem = {product_id: product_id, quantity: quantity, id: id}
+  console.log(newItem);
+  createItem(newItem);
+}
 
   return (
     <form>
@@ -30,7 +46,7 @@ const createComboBoxItem = (pro) => (
       >
       {products.map(pro => createComboBoxItem(pro))}    
       </select>
-      <button className="btn-dark btn-primary">
+      <button className="btn-dark btn-primary" onClick={addNewCartItem}>
         Submit
       </button>
     </form>

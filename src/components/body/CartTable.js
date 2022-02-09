@@ -5,7 +5,6 @@ const CartTable = ({cartList,products}) => {
 
   const createItem = (item) => {
     let pro = products.find(product => product.id === item.product_id)
-    console.log({...pro,quantity:item.quantity,cart_id:item.id});
     return {...pro,quantity:item.quantity,cart_id:item.id}
   }
   return (
