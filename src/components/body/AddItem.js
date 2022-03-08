@@ -15,13 +15,6 @@ const createComboBoxItem = (pro) => (
   </option>
 );
 
-// {
-//   "product_id": 1,
-//   "quantity": 1,
-//   "id": 1
-// }
-
-
 
 const addNewCartItem = (e) => {
   e.preventDefault();
